@@ -1,6 +1,6 @@
-package com.quadcore.gw2;
+package kr.nutee.gateway;
 
-import com.quadcore.gw2.jwt.JwtRequestFilter;
+import kr.nutee.gateway.jwt.JwtRequestFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping;
@@ -10,8 +10,6 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.CorsWebFilter;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.HashMap;

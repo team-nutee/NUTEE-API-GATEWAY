@@ -8,11 +8,11 @@
         <version>2.1.0.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.quadcore</groupId>
-    <artifactId>gw2</artifactId>
+    <groupId>kr.nutee</groupId>
+    <artifactId>gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>gw2</name>
+    <name>gateway</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

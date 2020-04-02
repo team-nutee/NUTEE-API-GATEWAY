@@ -1,4 +1,4 @@
-package com.quadcore.gw2;
+package kr.nutee.gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

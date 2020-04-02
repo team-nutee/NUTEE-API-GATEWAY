@@ -1,4 +1,4 @@
-package com.quadcore.gw2.jwt;
+package kr.nutee.gateway.jwt;
 
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;

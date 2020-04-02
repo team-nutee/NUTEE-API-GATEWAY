@@ -1,4 +1,4 @@
-package com.quadcore.gw2.controller;
+package kr.nutee.gateway.controller;
 
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
