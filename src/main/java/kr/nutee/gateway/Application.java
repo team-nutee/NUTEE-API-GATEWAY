@@ -15,10 +15,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 @SpringBootApplication
-public class Gw2Application {
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(Gw2Application.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
 
