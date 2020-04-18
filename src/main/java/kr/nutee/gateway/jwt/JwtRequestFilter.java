@@ -4,6 +4,8 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import kr.nutee.gateway.Model.Config;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,86 +15,38 @@ import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFac
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.handler.ResponseStatusExceptionHandler;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.annotation.NonNull;
+
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
-public class JwtRequestFilter extends
-        AbstractGatewayFilterFactory<JwtRequestFilter.Config> implements Ordered {
-
-    final Logger logger =
-            LoggerFactory.getLogger(JwtRequestFilter.class);
+@Slf4j
+public class JwtRequestFilter extends AbstractGatewayFilterFactory<Config>  {
 
     @Autowired
     private JwtValidator jwtValidator;
 
-    @Override
-    public int getOrder() {
-        return -2; // -1 is response write filter, must be called before that
-    }
-
-    public static class Config {
-        private String role;
-        public Config(String role) {
-            this.role = role;
-        }
-        public String getRole() {
-            return role;
-        }
-    }
-
-
-
-    @Bean
-    public ErrorWebExceptionHandler myExceptionHandler() {
-        return new MyWebExceptionHandler();
-    }
-
-    public class MyWebExceptionHandler implements ErrorWebExceptionHandler {
-        private String errorCodeMaker(int errorCode) {
-            return "{\"errorCode\":" + errorCode +"}";
-        }
-
-        @Override
-        public Mono<Void> handle(
-                ServerWebExchange exchange, Throwable ex) {
-            logger.warn("in GATEWAY Exeptionhandler : " + ex);
-            int errorCode = 999;
-            if (ex.getClass() == NullPointerException.class) {
-                errorCode = 61;
-            } else if (ex.getClass() == ExpiredJwtException.class) {
-                errorCode = 56;
-            } else if (ex.getClass() == MalformedJwtException.class || ex.getClass() == SignatureException.class || ex.getClass() == UnsupportedJwtException.class) {
-                errorCode = 55;
-            } else if (ex.getClass() == IllegalArgumentException.class) {
-                errorCode = 51;
-            }
-
-            byte[] bytes = errorCodeMaker(errorCode).getBytes(StandardCharsets.UTF_8);
-            DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-            return exchange.getResponse().writeWith(Flux.just(buffer));
-        }
-    }
-
-
     public JwtRequestFilter() {
         super(Config.class);
     }
-   // public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             String token = exchange.getRequest().getHeaders().get("Authorization").get(0).substring(7);
-            logger.info("token : " + token);
+            log.info("token : " + token);
             Map<String, Object> userInfo = jwtValidator.getUserParseInfo(token);
-            logger.info("role of Request user : " + userInfo.get("role"));
-            ArrayList<String> arr = (ArrayList<String>)userInfo.get("role");
-            logger.info("roelsdfsdf: " + userInfo.get("role") + userInfo.get("role").getClass());
-            if ( !arr.contains(config.getRole())) {
+            log.info("role of Request user : " + userInfo.get("role"));
+            String str = (String)userInfo.get("role");
+            log.info("role: " + userInfo.get("role") + userInfo.get("role").getClass());
+            if ( !str.contains(config.getRole())) {
                 throw new IllegalArgumentException();
             }
             return chain.filter(exchange);
