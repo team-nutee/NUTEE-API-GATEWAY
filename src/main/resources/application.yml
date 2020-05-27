@@ -1,0 +1,8 @@
+jwt.secret : nutee
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 15000
