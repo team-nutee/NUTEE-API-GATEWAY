@@ -4,6 +4,7 @@ import kr.nutee.gateway.Model.Config;
 import kr.nutee.gateway.jwt.JwtRequestFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping;
 import org.springframework.cloud.gateway.route.RouteLocator;
 
@@ -22,7 +23,6 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-
     @Bean
     public CorsConfiguration corsConfiguration(RoutePredicateHandlerMapping routePredicateHandlerMapping) {
         CorsConfiguration corsConfiguration = new CorsConfiguration().applyPermitDefaultValues();
@@ -30,44 +30,5 @@ public class Application {
         corsConfiguration.addAllowedOrigin("*");
         routePredicateHandlerMapping.setCorsConfigurations(new HashMap<String, CorsConfiguration>() {{ put("/**", corsConfiguration); }});
         return corsConfiguration;
-    }
-
-
-
-    @Bean
-    public RouteLocator customRouteLocator(RouteLocatorBuilder builder, JwtRequestFilter jwtRequestFilter) {
-        String authServer="http://localhost:9708/";
-        String snsServer="http://localhost:9425/";
-        return builder.routes()
-                .route("auth",  r-> r.path("/auth/**")
-                        .filters(f -> f
-                                .rewritePath("/auth/(?<segment>.*)", "/auth/${segment}")
-                                .hystrix(config -> config
-                                .setName("fallbackpoint")
-                                .setFallbackUri("forward:/fallback")))
-                        .uri(authServer))
-                .route("sns",  r-> r.path("/sns/**")
-                        .filters(f -> f
-                                .rewritePath("/sns/(?<segment>.*)", "/sns/${segment}")
-                                .filter(jwtRequestFilter.apply(new Config("ROLE_USER")))
-                                .hystrix(config -> config
-                                .setName("fallbackpoint")
-                                .setFallbackUri("forward:/fallback")))
-                        .uri(snsServer))
-                .route("user", r->r.path("/user/**")
-                    .filters(f -> f
-                            .rewritePath("/user/(?<segment>.*)", "/user/${segment}")
-                            .filter(jwtRequestFilter.apply(new Config("ROLE_USER"))
-                    ))
-                        .uri(authServer)
-                )
-                .route("admin", r->r.path("/admin/**")
-                        .filters(f -> f
-                                .rewritePath("/admin/(?<segment>.*)", "/admin/${segment}")
-                                .filter(jwtRequestFilter.apply(new Config("ROLE_ADMIN"))
-                                ))
-                        .uri(authServer)
-                )
-                .build();
     }
 }

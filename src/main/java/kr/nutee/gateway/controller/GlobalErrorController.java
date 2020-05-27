@@ -11,6 +11,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.annotation.NonNull;
 import java.nio.charset.StandardCharsets;
@@ -19,27 +20,31 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 @Order(-2)
 public class GlobalErrorController implements ErrorWebExceptionHandler {
+
+    private String statusCodeMaker(int statusCode) {
+        return "{\"statusCode\":" + statusCode +"}";
+    }
+
     @Override
     @NonNull
-    public Mono<Void> handle(@NonNull ServerWebExchange exchange, @NonNull Throwable throwable) {
-        log.warn("in GATEWAY Exeptionhandler : " + throwable);
-        String errorMessage = "";
-        if (throwable.getClass() == NullPointerException.class) {
-            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
-            errorMessage = "NullPointerException";
-        } else if (throwable.getClass() == ExpiredJwtException.class) {
-            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
-            errorMessage = "JWT TOKEN이 만료되었습니다.";
-        } else if (throwable.getClass() == MalformedJwtException.class || throwable.getClass() == SignatureException.class || throwable.getClass() == UnsupportedJwtException.class) {
-            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
-            errorMessage = "JWT TOKEN의 형식에 오류가 있습니다.";
-        } else if (throwable.getClass() == IllegalArgumentException.class) {
-            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
-            errorMessage = "해석된 TOKEN의 데이터에 오류가 있습니다.";
+    public Mono<Void> handle(@NonNull ServerWebExchange exchange, @NonNull Throwable ex) {
+        log.warn("in GATEWAY Exeptionhandler : " + ex);
+        int statusCode = 10;
+        if (ex.getClass() == NullPointerException.class) {
+            statusCode = 61;
+        } else if (ex.getClass() == ExpiredJwtException.class) {
+            statusCode = 56;
+        } else if (ex.getClass() == MalformedJwtException.class
+                || ex.getClass() == SignatureException.class
+                || ex.getClass() == UnsupportedJwtException.class
+        ) {
+            statusCode = 55;
+        } else if (ex.getClass() == IllegalArgumentException.class) {
+            statusCode = 51;
         }
 
-        byte[] bytes = errorMessage.getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = statusCodeMaker(statusCode).getBytes(StandardCharsets.UTF_8);
         DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-        return exchange.getResponse().writeWith(Mono.just(buffer));
+        return exchange.getResponse().writeWith(Flux.just(buffer));
     }
 }

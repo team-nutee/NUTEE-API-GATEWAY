@@ -1,21 +1,19 @@
 package kr.nutee.gateway.jwt;
 
 import io.jsonwebtoken.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.*;
 
 
 @Component
+@Slf4j
 public class JwtValidator implements Serializable {
 
     private static final long serialVersionUID = -2550185165626007488L;
-    private static final Logger logger = LoggerFactory.getLogger(JwtValidator.class);
 
     @Value("${jwt.secret}")
     private String secret;
@@ -32,9 +30,10 @@ public class JwtValidator implements Serializable {
         System.out.println("만료시간"+parseInfo.getExpiration());
         boolean isExpired = parseInfo.getExpiration().before(new Date());
         result.put("username", parseInfo.getSubject());
-        result.put("role", parseInfo.get("role", List.class));
+        result.put("role", parseInfo.get("role", String.class));
+        result.put("id", parseInfo.get("id", Integer.class).toString());
         result.put("isExpired", isExpired);
-        System.out.println("parseinfo in getuserparseinfo: " + result);
+        System.out.println("parseInfo in getUserParseInfo: " + result);
         return result;
     }
 
