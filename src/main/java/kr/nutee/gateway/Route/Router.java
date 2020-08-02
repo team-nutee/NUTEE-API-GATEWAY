@@ -17,6 +17,7 @@ public class Router {
         String authServer = "http://localhost:9708/";
         String snsServer = "http://localhost:9425/";
         String crawlServer = "http://localhost:9709/";
+        String adminServer = "http://localhost:9710/";
         return builder.routes()
                 .route("auth", r -> r.path("/auth/**")
                         .filters(f -> f
@@ -40,19 +41,12 @@ public class Router {
                                         .setName("fallbackpoint")
                                         .setFallbackUri("forward:/fallback")))
                         .uri(snsServer))
-                .route("user", r -> r.path("/user/**")
-                        .filters(f -> f
-                                .rewritePath("/user/(?<segment>.*)", "/user/${segment}")
-                                .filter(jwtRequestFilter.apply(new Config("ROLE_USER"))
-                                ))
-                        .uri(authServer)
-                )
                 .route("admin", r -> r.path("/admin/**")
                         .filters(f -> f
                                 .rewritePath("/admin/(?<segment>.*)", "/admin/${segment}")
                                 .filter(jwtRequestFilter.apply(new Config("ROLE_ADMIN"))
                                 ))
-                        .uri(authServer)
+                        .uri(adminServer)
                 )
                 .build();
     }

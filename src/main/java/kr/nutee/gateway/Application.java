@@ -26,7 +26,7 @@ public class Application {
     @Bean
     public CorsConfiguration corsConfiguration(RoutePredicateHandlerMapping routePredicateHandlerMapping) {
         CorsConfiguration corsConfiguration = new CorsConfiguration().applyPermitDefaultValues();
-        Arrays.asList(HttpMethod.OPTIONS, HttpMethod.PUT, HttpMethod.GET, HttpMethod.DELETE, HttpMethod.POST) .forEach(corsConfiguration::addAllowedMethod);
+        Arrays.asList(HttpMethod.OPTIONS, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.GET, HttpMethod.DELETE, HttpMethod.POST) .forEach(corsConfiguration::addAllowedMethod);
         corsConfiguration.addAllowedOrigin("*");
         routePredicateHandlerMapping.setCorsConfigurations(new HashMap<String, CorsConfiguration>() {{ put("/**", corsConfiguration); }});
         return corsConfiguration;
