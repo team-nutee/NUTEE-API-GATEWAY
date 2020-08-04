@@ -24,7 +24,7 @@ public class GlobalErrorController implements ErrorWebExceptionHandler {
     private String statusCodeMaker(int statusCode) {
         return "{\"statusCode\":" + statusCode +"}";
     }
-
+    
     @Override
     @NonNull
     public Mono<Void> handle(@NonNull ServerWebExchange exchange, @NonNull Throwable ex) {
