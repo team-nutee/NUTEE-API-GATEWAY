@@ -13,3 +13,4 @@
 ### 서비스 설계시 고려사항
 - 각 서비스로의 매핑 이전에 JWT를 통한 공통 인증기능 구현
 - Hystrix를 통한 서킷 브레이커
+- Spring Cloud Netflix Eureka를 통한 서비스 등록
